@@ -4,8 +4,23 @@
 
 #include <iostream>
 
+bool hit_sphere(const point3& center, double radius, const ray& r){
+	vec3 oc = r.origin() - center;
+	auto a = dot(r.direction(), r.direction());
+	auto b = 2.0 * dot(oc, r.direction());
+	auto c = dot(oc, oc) - radius*radius;
+
+	// getting discriminant to know if it touches the sphere or not
+	// otherwise we would need to solve it and stuff this is nicer
+	auto discriminant = b*b - 4 *a*c;
+	return (discriminant > 0);
+}
+
 // get the color of the ray
 color ray_color(const ray &r){
+	if (hit_sphere(point3(0,0,-1), 0.5, r))
+		return color(1,0,0);
+
 	vec3 unit_direction = unit_vector(r.direction());
 
 	auto opacity = 0.5;
@@ -19,7 +34,7 @@ int main(){
 	const auto aspect_ratio = 16.0 / 9.0;
 	const int image_width = 400;
 	// this makes a vertical window
-	const int image_height = image_width * aspect_ratio;
+	const int image_height = image_width / aspect_ratio;
 
 	// camera
 	auto viewport_height = 2.0;
