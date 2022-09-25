@@ -35,7 +35,7 @@ int main() {
   const auto aspect_ratio = 16.0 / 9.0;
   const int image_width = 400;
   const int image_height = image_width / aspect_ratio;
-  const int samples_per_pixel = 50; // for AA
+  const int samples_per_pixel = 5; // for AA
   // be caureful this number basically makes the render X times longer, as it is per pixel,
   // sample: 1, makes it really jagged
   // sample: 10, image looks noisy, dark spots are present, depth makes it a bit less noisy
@@ -51,6 +51,7 @@ int main() {
 
   // World
   hittable_list world;
+  auto R = cos(pi/4);
 
   auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
   auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
@@ -65,7 +66,7 @@ int main() {
   world.add(make_shared<sphere>(point3(1, 0.0, -1), 0.5, material_right));
 
   // Camera
-  camera cam;
+  camera cam(120.0, aspect_ratio);
   std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
   for (int j = image_height - 1; j >= 0; j--) {
 	std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
