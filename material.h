@@ -51,9 +51,9 @@ metal(const color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
     double fuzz;
 };
 
-class dialectric : public material {
+class dielectric : public material {
     public:
-dialectric(double index_of_refraction) : ir(index_of_refraction) {}
+dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
     virtual bool scatter(
    const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
