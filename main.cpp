@@ -35,8 +35,19 @@ int main() {
   const auto aspect_ratio = 16.0 / 9.0;
   const int image_width = 400;
   const int image_height = image_width / aspect_ratio;
-  const int samples_per_pixel = 100; // for AA
-  const int max_depth = 10;
+  const int samples_per_pixel = 50; // for AA
+  // be caureful this number basically makes the render X times longer, as it is per pixel,
+  // sample: 1, makes it really jagged
+  // sample: 10, image looks noisy, dark spots are present, depth makes it a bit less noisy
+  // sample: 50, image looks somewhat noisy but better than 10 (at 6 depth, but at depth 20 is perfect)
+  // sample: 100 image looks good enough, anything beyond is too much
+  const int max_depth = 20; // depth cant be too large as it could blow the stack (recursion)
+ // depth 1 makes everything black
+ // depth 2 allows for small shdows but no dialectric properties (refraction, reflection)
+ // depth 3 makes some reflection
+ // depth 6 makes good enough reflection
+ // depth 10 looks good
+ // depth 50 looks great? - havent test it much
 
   // World
   hittable_list world;
