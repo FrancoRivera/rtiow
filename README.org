@@ -1,4 +1,9 @@
+
 #+title: RTIOW implementation
+
+Final result:
+
+[[file:./main.jpg]]
 
 Taken from the book by Peter Shirley
 [[https://raytracing.github.io/books/RayTracingInOneWeekend.html][RayTracing In One Weekend]]
