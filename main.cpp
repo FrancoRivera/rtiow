@@ -54,6 +54,7 @@ hittable_list random_scene(){
 }
 
 // get the color of the ray
+// this is the core of the ray tracing
 color ray_color(const ray &r, const hittable &world, int depth) {
   hit_record rec;
 
@@ -79,15 +80,15 @@ color ray_color(const ray &r, const hittable &world, int depth) {
 int main() {
   // image
   const auto aspect_ratio = 3.0/2.0;
-  const int image_width = 400;
+  const int image_width = 1200;
   const int image_height = image_width / aspect_ratio;
-  const int samples_per_pixel = 50; // for AA
+  const int samples_per_pixel = 100; // for AA
   // be caureful this number basically makes the render X times longer, as it is per pixel,
   // sample: 1, makes it really jagged
   // sample: 10, image looks noisy, dark spots are present, depth makes it a bit less noisy
   // sample: 50, image looks somewhat noisy but better than 10 (at 6 depth, but at depth 20 is perfect)
   // sample: 100 image looks good enough, anything beyond is too much
-  const int max_depth = 20; // depth cant be too large as it could blow the stack (recursion)
+  const int max_depth = 50; // depth cant be too large as it could blow the stack (recursion)
  // depth 1 makes everything black
  // depth 2 allows for small shdows but no dielectric properties (refraction, reflection)
  // depth 3 makes some reflection
@@ -114,16 +115,20 @@ int main() {
 
   std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
   for (int j = image_height - 1; j >= 0; j--) {
-	std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-	for (int i = 0; i < image_width; i++) {
-	  color pixel_color(0, 0, 0);
-	  for (int s = 0; s < samples_per_pixel; ++s) {
-		auto u = (i + random_double()) / (image_width - 1);
-		auto v = (j + random_double()) / (image_height - 1);
-		ray r = cam.get_ray(u, v);
-		pixel_color += ray_color(r, world, max_depth);
-	  }
-	  write_color(std::cout, pixel_color, samples_per_pixel);
+    std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+
+    for (int i = 0; i < image_width; i++) {
+      color pixel_color(0, 0, 0); // it starts as blac
+
+      // for clarity and antialiasing, "super sampling" every pixel
+      #pragma omp parallel for num_threads(4)
+      for (int s = 0; s < samples_per_pixel; ++s) {
+        auto u = (i + random_double()) / (image_width - 1);
+        auto v = (j + random_double()) / (image_height - 1);
+        ray r = cam.get_ray(u, v);
+        pixel_color += ray_color(r, world, max_depth);
+      }
+      write_color(std::cout, pixel_color, samples_per_pixel);
     }
   }
   std::cerr << "\nDone.\n";

@@ -2,3 +2,72 @@
 
 Taken from the book by Peter Shirley
 [[https://raytracing.github.io/books/RayTracingInOneWeekend.html][RayTracing In One Weekend]]
+
+--
+Performance
+--
+
+Takes around 750secs on an Intel Celeron 3050u
+Takes around 200secs on an M1
+
+To run:
+
+g++ main.cpp && ./a.out > main.ppm
+
+or to time it:
+
+g++ main.cpp && time ./a.out > main.ppm
+
+
+Just as a reference, Optimisation makes it really fast for ex:
+g++ with -O3 is 4 with random and
+g++ without is 40
+
+* Using parallelization
+As ray tracing is a highly parellisable construct, we can use OpenMP to easily paralelise our code:
+
+In the source code we add a pragma directive:
+
+#pragma omp parallel for
+
+Before any for loop we want to paralelise.
+
+To be able to compile this program we must:
+
+** Compiling
+*** For Mac OS
+Install the LLVM ( as the Apple's version doesnt support OpenMP), we can use homebrew for this:
+
+brew install llvm libomp;
+
+And then we must compile using the -fopenmp flag (otherwise it just rans the same unparallelised code) as follows:
+
+/opt/homebrew/opt/llvm/bin/clang++ main.cpp -O3 -fopenmp && time ./a.out > main.ppm
+
+This brings the execution time from around 37 secs (in a simple non rigorous tests)
+To 15 seconds (we add it to the inner sample per pixel loop), the reason I cant add it to the I or the J loop is because we write to std::cout first
+
+** Runtime stats
+
+For the following Parameters:
+image_width = 1200;
+samples_per_pixel = 100;
+max_depth = 50;
+processor: M1
+
+Total time (as measures with time): 2 min 21s
+Weirdly it only attacks 3 CPUs (out of the 8 available)
+
+Further optimisation:
+
+So we can add the number of threads (it seems to only grab 3 by default)
+to 8 with:
+#pragma omp parallel for num_threads(8)
+New duration with 8 threads: 2:21
+
+Note that when we run with 99 threads the code is noticeably slower, maybe due to overheads?
+
+
+* Further reading
+Nice primer on OpenMP:
+[[https://medium.com/swlh/introduction-to-the-openmp-with-c-and-some-integrals-approximation-a7f03e9ebb65][Introduction to the OpenMP with C++ and some integrals approximation | by Ser...]]

@@ -24,7 +24,7 @@ inline double degrees_to_radians(double degrees){
     return degrees * pi / 180.0;
 }
 
-// old way
+// old way, rand() is not really random btw unless you seed it, same as mt19937
 inline double random_double(){
     // returns a random real in [0,1];
     return rand() / (RAND_MAX + 1.0);
